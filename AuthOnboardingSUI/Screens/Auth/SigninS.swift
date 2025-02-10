@@ -16,7 +16,7 @@ struct SigninS: View {
         .onTapGesture { hideKeyboard() }
     }
     
-    // MARK: - Background
+    
     private var backgroundView: some View {
         LinearGradient(
             gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.green.opacity(0.8)]),
@@ -26,7 +26,6 @@ struct SigninS: View {
         .ignoresSafeArea()
     }
     
-    // MARK: - Main Content
     private var content: some View {
         ScrollView {
             VStack(spacing: 30) {
@@ -40,7 +39,7 @@ struct SigninS: View {
         }
     }
     
-    // MARK: - Header
+    
     private var header: some View {
         VStack(spacing: 10) {
             Image(systemName: "person.fill")
@@ -58,7 +57,7 @@ struct SigninS: View {
         .padding(.top, 40)
     }
     
-    // MARK: - Form Card
+    
     private var formCard: some View {
         VStack(spacing: 20) {
             TextField("Username", text: $username, onCommit: {
@@ -99,10 +98,9 @@ struct SigninS: View {
         .cornerRadius(20)
     }
     
-    // MARK: - Action Buttons
+    
     private var actionButtons: some View {
         VStack(spacing: 20) {
-            // Login Button
             Button(action: loginAction) {
                 Text("Login")
                     .font(.system(size: 20, weight: .bold))
@@ -115,7 +113,6 @@ struct SigninS: View {
             }
             .buttonStyle(PressableButtonStyle())
             
-            // Back Button
             Button(action: backAction) {
                 Text("Back")
                     .font(.system(size: 20, weight: .bold))
@@ -130,7 +127,7 @@ struct SigninS: View {
         }
     }
     
-    // MARK: - Actions
+    
     private func loginAction() {
         let body: [String: Any] = [
             "username": username,

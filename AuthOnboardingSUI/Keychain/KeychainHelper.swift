@@ -92,7 +92,6 @@ final class KeychainHelper {
         }
     }
     
-    // MARK: - Token Handling
     func saveToken(_ token: String) {
         guard let data = token.data(using: .utf8) else { return }
         save(data, service: "com.yourapp.auth", account: "userToken")
@@ -107,7 +106,6 @@ final class KeychainHelper {
         delete(service: "com.yourapp.auth", account: "userToken")
     }
     
-    // MARK: - Password Handling
     func savePassword(_ password: String, for username: String) {
         guard let data = password.data(using: .utf8) else { return }
         save(data, service: "com.yourapp.auth", account: "password_\(username)")

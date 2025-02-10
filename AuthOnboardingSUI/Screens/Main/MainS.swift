@@ -30,7 +30,6 @@ struct MainS: View {
         }
     }
     
-    // MARK: - Background Gradient
     private var backgroundGradient: some View {
         LinearGradient(
             gradient: Gradient(colors: [Color.blue, Color.purple]),
@@ -39,7 +38,6 @@ struct MainS: View {
         )
     }
     
-    // MARK: - Заголовок экрана
     private var headerView: some View {
         Text("Registered Users")
             .font(.largeTitle)
@@ -48,7 +46,6 @@ struct MainS: View {
             .padding(.top, 40)
     }
     
-    // MARK: - Кнопка "My Profile"
     private var myProfileButton: some View {
         NavigationLink(destination: UserProfileS()) {
             Text("My Profile")
@@ -63,7 +60,6 @@ struct MainS: View {
         .padding(.horizontal, 20)
     }
     
-    // MARK: - Список пользователей
     private var userListView: some View {
         ScrollView {
             LazyVStack(spacing: 10) {
@@ -75,7 +71,6 @@ struct MainS: View {
         }
     }
     
-    // MARK: - Кнопка Logout
     private var logoutButton: some View {
         Button(action: logout) {
             Text("Logout")
@@ -92,7 +87,6 @@ struct MainS: View {
         .padding(.bottom, 40)
     }
     
-    // MARK: - Действия
     private func loadUsers() {
         vm.getRegisteredUsers { fetchedUsers in
             self.users = fetchedUsers

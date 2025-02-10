@@ -2,15 +2,12 @@ import SwiftUI
 import PhotosUI
 
 struct UserProfileS: View {
-    // Локальная модель профиля (предполагается, что UserProfileM уже реализована)
     @StateObject var vm = UserProfileM()
-    // Глобальная модель для навигации и текущего пользователя
     @EnvironmentObject var mainVM: MainVM
     
     var body: some View {
         NavigationView {
             Form {
-                // Секция с базовой информацией
                 Section(header: Text("Account Info")) {
                     TextField("Username", text: $vm.nickname)
                         .textContentType(.username)
@@ -20,10 +17,9 @@ struct UserProfileS: View {
                         .autocapitalization(.none)
                 }
                 
-                // Секция с аватаркой и персональными данными
                 Section {
                     HStack {
-                        // Используем ваш компонент для смены аватара
+            
                         ChangableAvatarV(vm: vm)
                         VStack(alignment: .leading) {
                             TextField("First name", text: $vm.firstName)
@@ -34,7 +30,7 @@ struct UserProfileS: View {
                     }
                 }
                 
-                // Секция с контактными данными
+                
                 Section(header: Text("Contact Info")) {
                     TextField("Telegram", text: $vm.tg)
                         .textContentType(.nickname)
@@ -43,7 +39,7 @@ struct UserProfileS: View {
                         .keyboardType(.phonePad)
                 }
                 
-                // Секция с кнопками Save и Cancel
+                
                 Section {
                     Button(action: {
                         vm.saveInUserDefaults()
@@ -54,14 +50,14 @@ struct UserProfileS: View {
                     
                     Button(action: {
                         restore(viewModel: vm)
-                        mainVM.navigationState = .Main  // Возвращаем на главный экран (MainS)
+                        mainVM.navigationState = .Main
                     }) {
                         Text("Cancel")
                     }
                     .foregroundColor(.gray)
                 }
                 
-                // Секция с кнопкой Log Out
+                
                 Section {
                     Button(action: {
                         mainVM.logout()
@@ -84,7 +80,6 @@ struct UserProfileS: View {
 
 @MainActor
 func restore(viewModel: UserProfileM) {
-    // Загружаем аватар: если в UserDefaults нет данных, используем стандартную аватарку
     let data = UserDefaults.standard.data(forKey: "Avatar") ?? UIImage(named: "Avatar")!.jpegData(compressionQuality: 1)!
     let image = UIImage(data: data)!
     viewModel.setImageStateSuccess(image: Image(uiImage: image))

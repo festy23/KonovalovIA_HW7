@@ -14,7 +14,6 @@ struct ProfileView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // Аватар с кнопкой выбора изображения
                 ZStack(alignment: .bottomTrailing) {
                     ProfileImageV(imageState: profileVM.imageState)
                     PhotosPicker(selection: $profileVM.imageSelection, matching: .images) {
@@ -27,7 +26,6 @@ struct ProfileView: View {
                 }
                 .padding(.top, 20)
                 
-                // Редактируемые поля профиля
                 Group {
                     EditableRow(title: "First Name", text: $profileVM.firstName)
                     EditableRow(title: "Last Name", text: $profileVM.lastName)
@@ -133,7 +131,6 @@ struct ProfileImageV: View {
                         .progressViewStyle(CircularProgressViewStyle())
                 }
             case .success(let image):
-                // image уже имеет тип SwiftUI Image – используем его напрямую
                 image
                     .resizable()
                     .scaledToFill()

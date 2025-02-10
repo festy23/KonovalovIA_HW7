@@ -9,11 +9,9 @@ struct ResetS: View {
     
     @State private var isPasswordVisible = false
     
-    // Alert
     @State private var showAlert = false
     @State private var alertMessage = ""
     
-    // MARK: - Body
     var body: some View {
         ZStack {
             backgroundView
@@ -30,7 +28,6 @@ struct ResetS: View {
         .navigationBarHidden(true)
     }
     
-    // MARK: - Background
     private var backgroundView: some View {
         LinearGradient(
             gradient: Gradient(colors: [Color.orange.opacity(0.8), Color.yellow.opacity(0.8)]),
@@ -40,7 +37,6 @@ struct ResetS: View {
         .ignoresSafeArea()
     }
     
-    // MARK: - Main Content
     private var content: some View {
         ScrollView {
             VStack(spacing: 30) {
@@ -54,7 +50,6 @@ struct ResetS: View {
         }
     }
     
-    // MARK: - Header
     private var header: some View {
         VStack(spacing: 10) {
             Image(systemName: "lock.rotation")
@@ -77,7 +72,6 @@ struct ResetS: View {
         .padding(.top, 40)
     }
     
-    // MARK: - Form Card (по дизайну, как в SignupS)
     private var formCard: some View {
         VStack(spacing: 20) {
             TextField("User name", text: $username)
@@ -87,11 +81,9 @@ struct ResetS: View {
                 .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                 .autocapitalization(.none)
                 .onAppear {
-                    // Тестовые данные – уберите в продакшене
                     username = "User1"
                 }
             
-            // Для нового пароля используем ZStack с переключателем видимости
             ZStack(alignment: .trailing) {
                 Group {
                     if isPasswordVisible {
@@ -132,17 +124,14 @@ struct ResetS: View {
         .cornerRadius(20)
         .padding(.horizontal, 20)
         .onAppear {
-            // Тестовые данные – убедитесь, что они соответствуют данным на сервере
             email = "Advev@mail.ru"
             secretResponse = "123"
             password = "Password2!"
         }
     }
     
-    // MARK: - Action Buttons
     private var actionButtons: some View {
         VStack(spacing: 20) {
-            // Кнопка сброса пароля
             Button(action: resetAction) {
                 Text("Reset Password")
                     .font(.system(size: 20, weight: .bold))
@@ -155,7 +144,6 @@ struct ResetS: View {
             }
             .buttonStyle(PressableButtonStyle())
             
-            // Кнопка "Back"
             Button(action: backAction) {
                 Text("Back")
                     .font(.system(size: 20, weight: .bold))
@@ -170,8 +158,7 @@ struct ResetS: View {
         }
         .padding(.horizontal, 20)
     }
-    
-    // MARK: - Actions
+
     private func resetAction() {
         let body: [String: Any] = [
             "username": username,

@@ -5,8 +5,6 @@ struct DropS: View {
     @State private var username: String = ""
     @State private var password: String = ""
     @State private var isPasswordVisible: Bool = false
-    
-    // Локальные состояния для Alert
     @State private var showAlert = false
     @State private var alertMessage = ""
     
@@ -35,7 +33,6 @@ struct DropS: View {
         }
     }
     
-    // MARK: - Background
     private var backgroundGradient: some View {
         LinearGradient(
             gradient: Gradient(colors: [Color.gray.opacity(0.8), Color.red.opacity(0.8)]),
@@ -45,7 +42,6 @@ struct DropS: View {
         .ignoresSafeArea()
     }
     
-    // MARK: - Header View
     private var headerView: some View {
         VStack(spacing: 10) {
             Image(systemName: "trash.fill")
@@ -66,7 +62,6 @@ struct DropS: View {
         .padding(.top, 40)
     }
     
-    // MARK: - Form Card
     private var formCard: some View {
         VStack(spacing: 20) {
             TextField("Username", text: $username)
@@ -76,7 +71,6 @@ struct DropS: View {
                 .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                 .autocapitalization(.none)
                 .onAppear {
-                    // Тестовые данные – убрать в продакшене
                     username = "User1"
                     password = "Password1!"
                 }
@@ -95,7 +89,6 @@ struct DropS: View {
                 .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                 
                 Button(action: {
-                    // Анимация убрана – просто переключаем значение
                     isPasswordVisible.toggle()
                 }) {
                     Image(systemName: isPasswordVisible ? "eye.slash.fill" : "eye.fill")
@@ -109,10 +102,8 @@ struct DropS: View {
         .cornerRadius(20)
     }
     
-    // MARK: - Action Buttons
     private var actionButtons: some View {
         VStack(spacing: 20) {
-            // Delete Button
             Button(action: deleteAction) {
                 Text("Delete")
                     .font(.system(size: 20, weight: .bold))
@@ -125,7 +116,6 @@ struct DropS: View {
             }
             .buttonStyle(PressableButtonStyle())
             
-            // Back Button
             Button(action: backAction) {
                 Text("Back")
                     .font(.system(size: 20, weight: .bold))
@@ -140,7 +130,6 @@ struct DropS: View {
         }
     }
     
-    // MARK: - Actions
     private func deleteAction() {
         let body: [String: Any] = [
             "username": username,
@@ -152,7 +141,6 @@ struct DropS: View {
                 showAlert = true
                 
                 if response.id == 0 {
-                    // Удаление успешно
                     KeychainHelper.shared.deleteToken()
                     
                     let keysToRemove = ["username", "email", "firstName", "lastName", "surname", "tg", "tel", "avatar"]

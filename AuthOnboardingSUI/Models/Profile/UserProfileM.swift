@@ -15,7 +15,7 @@ class UserProfileM: ObservableObject {
     @Published var email: String = ""
     @Published var nickname: String = ""
     
-    // MARK: - User Image State
+    
     enum ImageState {
         case empty
         case loading(Progress)
@@ -23,10 +23,10 @@ class UserProfileM: ObservableObject {
         case failure(Error)
     }
     
-    // Свойство доступно только для чтения извне
+    
     @Published private(set) var imageState: ImageState = .empty
     
-    // Photo picked item
+    
     @Published var imageSelection: PhotosPickerItem? = nil {
         didSet {
             if let imageSelection = imageSelection {
@@ -52,7 +52,7 @@ class UserProfileM: ObservableObject {
                     throw TransferError.importFailed
                 }
                 
-                // Сохраняем данные аватара (например, для восстановления)
+                
                 UserDefaults.standard.set(data, forKey: "Avatar")
                 
                 let image = Image(uiImage: uiImage)
@@ -61,7 +61,7 @@ class UserProfileM: ObservableObject {
         }
     }
     
-    // MARK: - Работа с UserDefaults
+    
     let keyValues = ["FirstName", "LastName", "Surname", "Email", "TG", "Tel", "Nickname"]
     
     public func saveInUserDefaults() {
@@ -87,7 +87,7 @@ class UserProfileM: ObservableObject {
         }
     }
     
-    /// Устанавливает состояние изображения в success с переданным SwiftUI Image
+    
     public func setImageStateSuccess(image: Image) {
         self.imageState = .success(image)
     }
@@ -98,7 +98,6 @@ class UserProfileM: ObservableObject {
     private func loadTransferable(from imageSelection: PhotosPickerItem) -> Progress {
         return imageSelection.loadTransferable(type: ProfileImage.self) { result in
             DispatchQueue.main.async {
-                // Если выбран другой элемент – игнорируем результат
                 guard imageSelection == self.imageSelection else {
                     print("Failed to get the selected item.")
                     return
@@ -118,13 +117,13 @@ class UserProfileM: ObservableObject {
     // MARK: - Logout
     /// Метод logout очищает сохранённые данные и сбрасывает свойства модели
     func logout() {
-        // Удаляем сохранённый аватар
+        
         UserDefaults.standard.removeObject(forKey: "Avatar")
-        // Удаляем сохранённые данные по ключам
+        
         for key in keyValues {
             UserDefaults.standard.removeObject(forKey: key)
         }
-        // Сбрасываем свойства модели
+        
         firstName = ""
         lastName = ""
         surname = ""
@@ -135,7 +134,7 @@ class UserProfileM: ObservableObject {
         imageState = .empty
         imageSelection = nil
         
-        // Можно отправить уведомление о выходе (если используется)
+        
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: NSNotification.Name("UserLoggedOut"), object: nil)
         }

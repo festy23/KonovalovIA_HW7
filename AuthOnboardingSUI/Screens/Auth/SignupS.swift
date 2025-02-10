@@ -9,7 +9,7 @@ struct SignupS: View {
     @State private var secretResponse = ""
     @State private var isPasswordVisible = false
 
-    // Показываем Alert
+    // Показывается Alert
     @State private var showAlert = false
     @State private var alertMessage = ""
 
@@ -46,7 +46,6 @@ struct SignupS: View {
         }
     }
     
-    // MARK: - Заголовок
     private var header: some View {
         VStack(spacing: 10) {
             Image(systemName: "person.badge.plus")
@@ -64,7 +63,6 @@ struct SignupS: View {
         .padding(.top, 40)
     }
     
-    // MARK: - Форма
     private var formCard: some View {
         VStack(spacing: 20) {
             TextField("User name", text: $username)
@@ -122,7 +120,6 @@ struct SignupS: View {
         .padding(.horizontal, 20)
     }
     
-    // MARK: - Кнопки
     private var actionButtons: some View {
         VStack(spacing: 20) {
             Button(action: registerAction) {
@@ -153,8 +150,7 @@ struct SignupS: View {
         }
         .padding(.horizontal, 20)
     }
-    
-    // MARK: - Регистрация
+
     private func registerAction() {
         let body: [String: Any] = [
             "username": username,
@@ -164,16 +160,11 @@ struct SignupS: View {
         ]
         vm.postRequest(endpoint: "signup", body: body) { response in
             DispatchQueue.main.async {
-                // При любом ответе сервера показываем Alert
                 alertMessage = response.token
                 showAlert = true
-                
                 if response.id > 0 {
-                    // Успешная регистрация
                     vm.navigationState = .AuthMenu
                 } else {
-                    // Ошибка регистрации
-                    // Остаёмся на этой же странице
                     vm.navigationState = .Signup
                 }
             }

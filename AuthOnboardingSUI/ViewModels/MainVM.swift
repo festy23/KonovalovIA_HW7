@@ -23,8 +23,6 @@ class MainVM: ObservableObject {
     @Published var users: [UserM] = []
     @Published var currentUser: UserM? = nil
     @Published var isLoading: Bool = false
-    
-    // Добавляем colorScheme для использования в preferredColorScheme
     @Published var colorScheme: ColorScheme = .light
     
     init() {
@@ -45,7 +43,6 @@ class MainVM: ObservableObject {
         }
     }
     
-    // MARK: - Работа с паролем
     private func validatePassword(password: String) -> Bool {
         let control = #"(?=.{8,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "])"#
         return password.range(of: control, options: .regularExpression) != nil
@@ -57,7 +54,6 @@ class MainVM: ObservableObject {
         }
     }
     
-    // MARK: - Тема
     func loadTheme() {
         let isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
         colorScheme = isDarkMode ? .dark : .light
@@ -89,7 +85,6 @@ class MainVM: ObservableObject {
             if let error = error {
                 DispatchQueue.main.async {
                     self.errorState = .Error(message: error.localizedDescription)
-                    // Если ошибка, возвращаем через callback
                     callback(RegLogResponse(id: -1, token: error.localizedDescription))
                 }
                 return
@@ -107,10 +102,9 @@ class MainVM: ObservableObject {
                     if decoded.id < 0 {
                         self.errorState = .Error(message: decoded.token)
                     } else {
-                        // Успешный результат, токен сохраняем при необходимости
                         self.token = decoded.token
                     }
-                    callback(decoded) // Возвращаем результат на SignupS
+                    callback(decoded)
                 }
             } catch {
                 DispatchQueue.main.async {
@@ -171,7 +165,6 @@ class MainVM: ObservableObject {
         }.resume()
     }
     
-    // MARK: - Logout
     func logout() {
         KeychainHelper.shared.deleteToken()
         token = ""
@@ -351,7 +344,7 @@ class MainVM: ObservableObject {
         }.resume()
     }
     
-    // MARK: - Загрузка локальных пользователей (если используется Core Data)
+
     func loadUsers() {
         let localUsers = PersistenceController.shared.getAllUsers()
         self.users = localUsers.map { $0.toUserM() }
@@ -361,7 +354,7 @@ class MainVM: ObservableObject {
         syncUsers()
     }
     
-    // MARK: - Универсальный GET-запрос (опционально)
+
     var getRequest: (String, [String: Any], String, String, @escaping (RegLogResponse) -> Void) -> Void {
         return { endpoint, body, token, requestType, callback in
             guard let url = URL(string: "\(self.api)/\(endpoint)") else {

@@ -7,7 +7,6 @@ import SwiftUI
 
 struct AuthMenuS: View {
     @EnvironmentObject var vm: MainVM
-    // Состояние для анимации появления содержимого
     @State private var animateContent = false
 
     var body: some View {
@@ -41,7 +40,6 @@ struct AuthMenuS: View {
                     
                     Spacer()
                     
-                    // Кнопки на выбор
                     VStack(spacing: 20) {
                         AuthMenuButton(
                             title: "Sign In",
@@ -79,21 +77,19 @@ struct AuthMenuS: View {
                     
                     Spacer()
                 }
-                // Применяем анимацию появления: из прозрачного (0) в полностью видимый (1)
+                
                 .opacity(animateContent ? 1 : 0)
                 .animation(.easeOut(duration: 0.5), value: animateContent)
             }
             .navigationBarHidden(true)
         }
         .onAppear {
-            // При появлении активируем анимацию
             animateContent = true
         }
     }
 }
 
-/// Универсальная кнопка для экрана AuthMenu,
-/// которая повторяет дизайн с фоном, шрифтами и тенями.
+
 struct AuthMenuButton: View {
     let title: String
     let backgroundColor: Color
@@ -121,7 +117,7 @@ struct AuthMenuS_Previews: PreviewProvider {
     }
 }
 
-// MARK: - Пользовательский стиль для анимации нажатия кнопок
+// MARK: стиль для анимации нажатия кнопок
 struct PressableButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
