@@ -22,29 +22,19 @@ struct UserM: Codable, Identifiable {
 
 extension User {
     func toUserM() -> UserM {
-        let defaults = UserDefaults.standard
-        let email = defaults.string(forKey: "email") ?? ""
-        let nickname = defaults.string(forKey: "nickname") ?? ""
-        let avatar = defaults.data(forKey: "avatar")
-        let id = Int(self.id)
-        let firstName = self.firstName ?? ""
-        let lastName = self.lastName ?? ""
-        let surname = self.surname ?? ""
-        let tel = self.tel ?? ""
-        let tg = self.tg ?? ""
         return UserM(
-            id: id,
-            username: nickname,
-            password: "",
-            secretResponse: "",
-            token: "",
-            firstName: firstName,
-            lastName: lastName,
-            surname: surname,
-            tel: tel,
-            tg: tg,
-            email: email,
-            avatar: avatar
+            id: Int(self.id),               // Приведение типа (предполагается, что self.id имеет числовой тип)
+            username: "",                   // Поле отсутствует в Core Data — оставляем пустым или задаем значение по умолчанию
+            password: "",                   // Аналогично
+            secretResponse: "",             // Аналогично
+            token: "",                      // Аналогично
+            firstName: self.firstName ?? "",// Используем значение из Core Data (если опциональное, то заменяем на пустую строку)
+            lastName: self.lastName ?? "",
+            surname: self.surname ?? "",
+            tel: self.tel ?? "",
+            tg: self.tg ?? "",
+            email: "",                      // Поле отсутствует, оставляем пустым
+            avatar: nil                     // Поле отсутствует, оставляем nil
         )
     }
 }

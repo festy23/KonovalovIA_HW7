@@ -1,99 +1,167 @@
-//
-//  LoginS.swift
-//  AuthSUI8
-//  Created by brfsu on 13.03.2024.
-//
-//
-//  SigninS.swift
-//  AuthSUI8
-//  Created by brfsu on 13.03.2024.
-//
 import SwiftUI
 
 struct SigninS: View {
     @EnvironmentObject var vm: MainVM
     
-    @State private var username = ""
-    @State private var password = ""
-    @State private var isPasswordVisible = false
+    @State private var username: String = ""
+    @State private var password: String = ""
+    @State private var isPasswordVisible: Bool = false
 
     var body: some View {
         ZStack {
-            Color.white.ignoresSafeArea()
-            VStack(spacing: 20) {
-                TextField("Username", text: $username, onCommit: {
-                    vm.autoFillPassword(for: username)
-                })
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .onAppear {
-                    if !username.isEmpty {
-                        vm.autoFillPassword(for: username) 
-                    }
-                }
-                
-                PasswordTextFieldV("Password", text: $password, isSecure: !isPasswordVisible)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .overlay {
-                        HStack {
-                            Spacer()
-                            Button {
-                                isPasswordVisible.toggle()
-                            } label: {
-                                Image(systemName: isPasswordVisible ? "eye.slash.fill" : "eye.fill")
-                                    .foregroundColor(.secondary)
-                            }
-                            .padding(.trailing, 8)
-                        }
-                    }
-
-                Button {
-                    let body: [String: Any] = [
-                        "username": username,
-                        "password": password
-                    ]
-                    
-                    vm.postRequest(endpoint: "signin", body: body, callback: { response in
-                        DispatchQueue.main.async {
-                            if response.id >= 0 {
-                                KeychainHelper.shared.savePassword(password, for: username)
-                                KeychainHelper.shared.saveToken(response.token)
-
-                                vm.navigationState = .Main
-                                vm.errorState = .Success(message: "You are signed in successfully.")
-                            } else {
-                                vm.navigationState = .Signin
-                                vm.errorState = .Error(message: response.token)
-                            }
-                        }
-                    })
-                } label: {
-                    Text("Login")
-                        .font(.system(size: 25, weight: .bold))
-                        .frame(width: 200, height: 50)
-                        .background(Color.white)
-                        .foregroundColor(.green)
-                        .cornerRadius(10)
-                }
-
-                Button {
-                    vm.navigationState = .AuthMenu
-                } label: {
-                    Text("Back")
-                        .font(.system(size: 25, weight: .bold))
-                        .frame(width: 200, height: 40)
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-            }
-            .padding()
+            backgroundView
+            content
         }
-        .onTapGesture {
-            endEditing()
+        .navigationBarHidden(true)
+        .onTapGesture { hideKeyboard() }
+    }
+    
+    // MARK: - Background
+    private var backgroundView: some View {
+        LinearGradient(
+            gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.green.opacity(0.8)]),
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+    }
+    
+    // MARK: - Main Content
+    private var content: some View {
+        ScrollView {
+            VStack(spacing: 30) {
+                header
+                formCard
+                actionButtons
+                Spacer()
+            }
+            .padding(.vertical, 30)
+            .padding(.horizontal, 20)
         }
     }
-
-    private func endEditing() {
+    
+    // MARK: - Header
+    private var header: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "person.fill")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 80, height: 80)
+                .foregroundColor(.white)
+            Text("Sign In")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            Text("Access your account")
+                .foregroundColor(.white.opacity(0.8))
+        }
+        .padding(.top, 40)
+    }
+    
+    // MARK: - Form Card
+    private var formCard: some View {
+        VStack(spacing: 20) {
+            TextField("Username", text: $username, onCommit: {
+                vm.autoFillPassword(for: username)
+            })
+            .padding()
+            .background(Color.white.opacity(0.95))
+            .cornerRadius(10)
+            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+            .autocapitalization(.none)
+            
+            ZStack(alignment: .trailing) {
+                Group {
+                    if isPasswordVisible {
+                        TextField("Password", text: $password)
+                    } else {
+                        SecureField("Password", text: $password)
+                    }
+                }
+                .padding()
+                .background(Color.white.opacity(0.95))
+                .cornerRadius(10)
+                .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                
+                Button(action: {
+                    withAnimation {
+                        isPasswordVisible.toggle()
+                    }
+                }) {
+                    Image(systemName: isPasswordVisible ? "eye.slash.fill" : "eye.fill")
+                        .foregroundColor(.gray)
+                        .padding(.trailing, 10)
+                }
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(20)
+    }
+    
+    // MARK: - Action Buttons
+    private var actionButtons: some View {
+        VStack(spacing: 20) {
+            // Login Button
+            Button(action: loginAction) {
+                Text("Login")
+                    .font(.system(size: 20, weight: .bold))
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.green)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                    .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2)
+            }
+            .buttonStyle(PressableButtonStyle())
+            
+            // Back Button
+            Button(action: backAction) {
+                Text("Back")
+                    .font(.system(size: 20, weight: .bold))
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.gray)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                    .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2)
+            }
+            .buttonStyle(PressableButtonStyle())
+        }
+    }
+    
+    // MARK: - Actions
+    private func loginAction() {
+        let body: [String: Any] = [
+            "username": username,
+            "password": password
+        ]
+        vm.postRequest(endpoint: "signin", body: body) { response in
+            if response.id >= 0 {
+                KeychainHelper.shared.savePassword(password, for: username)
+                KeychainHelper.shared.saveToken(response.token)
+                
+                vm.navigationState = .Main
+                vm.errorState = .Success(message: "You are signed in successfully.")
+            } else {
+                vm.navigationState = .Signin
+                vm.errorState = .Error(message: response.token)
+            }
+        }
+    }
+    
+    private func backAction() {
+        vm.navigationState = .AuthMenu
+    }
+    
+    private func hideKeyboard() {
         UIApplication.shared.endEditing()
+    }
+}
+
+struct SigninS_Previews: PreviewProvider {
+    static var previews: some View {
+        SigninS()
+            .environmentObject(MainVM())
     }
 }

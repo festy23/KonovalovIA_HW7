@@ -11,7 +11,7 @@ struct ProgressV: View
     
     var body: some View {
         HStack {
-            ForEach(0..<OnbordingM.onbordingData.count) { i in
+            ForEach(Array(0..<OnbordingM.onbordingData.count), id: \.self) { i in
                 Circle()
                     .scaledToFit()
                     .frame(width: 10)

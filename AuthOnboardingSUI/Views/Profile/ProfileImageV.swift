@@ -70,6 +70,7 @@ struct ProfileView: View {
             profileVM.email = UserDefaults.standard.string(forKey: "Email") ?? ""
             profileVM.nickname = UserDefaults.standard.string(forKey: "Nickname") ?? "User"
         }
+
     }
 }
 
@@ -111,7 +112,6 @@ struct ProfileView_Previews: PreviewProvider {
         }
     }
 }
-
 struct ProfileImageV: View {
     let imageState: UserProfileM.ImageState
 
@@ -133,7 +133,8 @@ struct ProfileImageV: View {
                         .progressViewStyle(CircularProgressViewStyle())
                 }
             case .success(let image):
-                Image(uiImage: image)
+                // image уже имеет тип SwiftUI Image – используем его напрямую
+                image
                     .resizable()
                     .scaledToFill()
             case .failure:
@@ -150,7 +151,6 @@ struct ProfileImageV: View {
 
 struct ProfileImageV_Previews: PreviewProvider {
     static var previews: some View {
-        
         ProfileImageV(imageState: .empty)
     }
 }

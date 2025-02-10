@@ -5,6 +5,8 @@ import CoreTransferable
 
 @MainActor
 class UserProfileM: ObservableObject {
+    
+    // MARK: - User Details
     @Published var firstName: String = ""
     @Published var lastName: String = ""
     @Published var surname: String = ""
@@ -13,11 +15,18 @@ class UserProfileM: ObservableObject {
     @Published var email: String = ""
     @Published var nickname: String = ""
     
+    // MARK: - User Image State
     enum ImageState {
-        case empty, loading(Progress), success(UIImage), failure(Error)
+        case empty
+        case loading(Progress)
+        case success(Image)
+        case failure(Error)
     }
     
-    @Published var imageState: ImageState = .empty
+    // Свойство доступно только для чтения извне
+    @Published private(set) var imageState: ImageState = .empty
+    
+    // Photo picked item
     @Published var imageSelection: PhotosPickerItem? = nil {
         didSet {
             if let imageSelection = imageSelection {
@@ -29,61 +38,74 @@ class UserProfileM: ObservableObject {
         }
     }
     
+    // MARK: - Transferable and Error Types
     enum TransferError: Error {
         case importFailed
     }
     
     struct ProfileImage: Transferable {
-        let image: UIImage
+        let image: Image
+        
         static var transferRepresentation: some TransferRepresentation {
             DataRepresentation(importedContentType: .image) { data in
                 guard let uiImage = UIImage(data: data) else {
                     throw TransferError.importFailed
                 }
-                return ProfileImage(image: uiImage)
+                
+                // Сохраняем данные аватара (например, для восстановления)
+                UserDefaults.standard.set(data, forKey: "Avatar")
+                
+                let image = Image(uiImage: uiImage)
+                return ProfileImage(image: image)
             }
         }
     }
     
-    func saveAvatar(image: UIImage) {
-        if let imageData = image.jpegData(compressionQuality: 0.8) {
-            UserDefaults.standard.set(imageData, forKey: "UserAvatar")
-        }
-    }
-    
-    func loadAvatar() {
-        if let imageData = UserDefaults.standard.data(forKey: "UserAvatar"),
-           let uiImage = UIImage(data: imageData) {
-            imageState = .success(uiImage)
-        } else {
-            imageState = .empty
-        }
-    }
-    
+    // MARK: - Работа с UserDefaults
     let keyValues = ["FirstName", "LastName", "Surname", "Email", "TG", "Tel", "Nickname"]
     
-    func saveInUserDefaults() {
-        UserDefaults.standard.set(firstName, forKey: "FirstName")
-        UserDefaults.standard.set(lastName, forKey: "LastName")
-        UserDefaults.standard.set(surname, forKey: "Surname")
-        UserDefaults.standard.set(email, forKey: "Email")
-        UserDefaults.standard.set(tg, forKey: "TG")
-        UserDefaults.standard.set(tel, forKey: "Tel")
-        UserDefaults.standard.set(nickname, forKey: "Nickname")
+    public func saveInUserDefaults() {
+        for key in keyValues {
+            switch key {
+            case "FirstName":
+                UserDefaults.standard.set(firstName, forKey: key)
+            case "LastName":
+                UserDefaults.standard.set(lastName, forKey: key)
+            case "Surname":
+                UserDefaults.standard.set(surname, forKey: key)
+            case "Email":
+                UserDefaults.standard.set(email, forKey: key)
+            case "TG":
+                UserDefaults.standard.set(tg, forKey: key)
+            case "Tel":
+                UserDefaults.standard.set(tel, forKey: key)
+            case "Nickname":
+                UserDefaults.standard.set(nickname, forKey: key)
+            default:
+                print("Unknown key: \(key)")
+            }
+        }
     }
     
-    func setImageStateSuccess(image: UIImage) {
+    /// Устанавливает состояние изображения в success с переданным SwiftUI Image
+    public func setImageStateSuccess(image: Image) {
         self.imageState = .success(image)
     }
     
+    // MARK: - Private Methods
+    
+    /// Загружает изображение через механизм Transferable и обновляет состояние
     private func loadTransferable(from imageSelection: PhotosPickerItem) -> Progress {
         return imageSelection.loadTransferable(type: ProfileImage.self) { result in
             DispatchQueue.main.async {
-                guard imageSelection == self.imageSelection else { return }
+                // Если выбран другой элемент – игнорируем результат
+                guard imageSelection == self.imageSelection else {
+                    print("Failed to get the selected item.")
+                    return
+                }
                 switch result {
                 case .success(let profileImage?):
                     self.imageState = .success(profileImage.image)
-                    self.saveAvatar(image: profileImage.image)
                 case .success(nil):
                     self.imageState = .empty
                 case .failure(let error):
@@ -93,14 +115,39 @@ class UserProfileM: ObservableObject {
         }
     }
     
+    // MARK: - Logout
+    /// Метод logout очищает сохранённые данные и сбрасывает свойства модели
     func logout() {
-        KeychainHelper.shared.deleteToken()
-        UserDefaults.standard.removeObject(forKey: "UserAvatar")
+        // Удаляем сохранённый аватар
+        UserDefaults.standard.removeObject(forKey: "Avatar")
+        // Удаляем сохранённые данные по ключам
         for key in keyValues {
             UserDefaults.standard.removeObject(forKey: key)
         }
+        // Сбрасываем свойства модели
+        firstName = ""
+        lastName = ""
+        surname = ""
+        tel = ""
+        tg = ""
+        email = ""
+        nickname = ""
+        imageState = .empty
+        imageSelection = nil
+        
+        // Можно отправить уведомление о выходе (если используется)
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: NSNotification.Name("UserLoggedOut"), object: nil)
         }
     }
+    
+    func loadAvatar() {
+        if let data = UserDefaults.standard.data(forKey: "Avatar"),
+           let uiImage = UIImage(data: data) {
+            self.imageState = .success(Image(uiImage: uiImage))
+        } else {
+            self.imageState = .empty
+        }
+    }
+
 }

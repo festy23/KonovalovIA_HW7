@@ -14,8 +14,8 @@ struct OnbordingM: Identifiable {
 
 extension OnbordingM {
     static var onbordingData: [OnbordingM] = [
-        OnbordingM(id: 0, image: "scr2", heading: "Welcome", text: "Welcome to our app!"),
-        OnbordingM(id: 1, image: "scr1", heading: "Discover", text: "Very cool app!!!"),
-        OnbordingM(id: 2, image: "scr3", heading: "Get Started", text: "Let’s get started!")
+        OnbordingM(id: 0, image: "scr2", heading: "Welcome", text: "Мы слушаем, но не осуждаем"),
+        OnbordingM(id: 1, image: "scr1", heading: "Discover", text: "Выскажи свое мнение в нашем приложении"),
+        OnbordingM(id: 2, image: "scr3", heading: "Get Started", text: "Мы слушаем, но не осуждаем"),
     ]
 }

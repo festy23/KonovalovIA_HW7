@@ -1,18 +1,17 @@
-//
-//  UserProfileS.swift
-//  AuthOnboardingSUI
-//  Created by brfsu
-//
 import SwiftUI
 import PhotosUI
 
 struct UserProfileS: View {
+    // Локальная модель профиля (предполагается, что UserProfileM уже реализована)
     @StateObject var vm = UserProfileM()
+    // Глобальная модель для навигации и текущего пользователя
+    @EnvironmentObject var mainVM: MainVM
     
     var body: some View {
         NavigationView {
             Form {
-                Section {
+                // Секция с базовой информацией
+                Section(header: Text("Account Info")) {
                     TextField("Username", text: $vm.nickname)
                         .textContentType(.username)
                         .autocapitalization(.none)
@@ -20,33 +19,13 @@ struct UserProfileS: View {
                         .textContentType(.emailAddress)
                         .autocapitalization(.none)
                 }
-
+                
+                // Секция с аватаркой и персональными данными
                 Section {
                     HStack {
-                        VStack {
-                            if case .success(let image) = vm.imageState {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 100, height: 100)
-                                    .clipShape(Circle())
-                            } else {
-                                Image(systemName: "person.crop.circle.fill")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 100, height: 100)
-                                    .foregroundColor(.gray)
-                            }
-
-                            PhotosPicker(selection: $vm.imageSelection, matching: .images) {
-                                Text("Choose Avatar")
-                                    .font(.caption)
-                                    .foregroundColor(.blue)
-                            }
-                        }
-                        .frame(width: 120)
-
-                        VStack {
+                        // Используем ваш компонент для смены аватара
+                        ChangableAvatarV(vm: vm)
+                        VStack(alignment: .leading) {
                             TextField("First name", text: $vm.firstName)
                             TextField("Last name", text: $vm.lastName)
                             TextField("Surname", text: $vm.surname)
@@ -55,7 +34,8 @@ struct UserProfileS: View {
                     }
                 }
                 
-                Section {
+                // Секция с контактными данными
+                Section(header: Text("Contact Info")) {
                     TextField("Telegram", text: $vm.tg)
                         .textContentType(.nickname)
                         .autocapitalization(.none)
@@ -63,6 +43,7 @@ struct UserProfileS: View {
                         .keyboardType(.phonePad)
                 }
                 
+                // Секция с кнопками Save и Cancel
                 Section {
                     Button(action: {
                         vm.saveInUserDefaults()
@@ -70,18 +51,20 @@ struct UserProfileS: View {
                         Text("Save")
                     }
                     .foregroundColor(.blue)
-
+                    
                     Button(action: {
                         restore(viewModel: vm)
+                        mainVM.navigationState = .Main  // Возвращаем на главный экран (MainS)
                     }) {
                         Text("Cancel")
                     }
                     .foregroundColor(.gray)
                 }
-
+                
+                // Секция с кнопкой Log Out
                 Section {
                     Button(action: {
-                        vm.logout()
+                        mainVM.logout()
                     }) {
                         Text("Log Out")
                             .foregroundColor(.red)
@@ -90,6 +73,9 @@ struct UserProfileS: View {
             }
             .navigationTitle("User Profile")
         }
+        .cornerRadius(15)
+        .background(Color.white)
+        .padding(0)
         .onAppear {
             restore(viewModel: vm)
         }
@@ -98,16 +84,11 @@ struct UserProfileS: View {
 
 @MainActor
 func restore(viewModel: UserProfileM) {
-    if let data = UserDefaults.standard.data(forKey: "Avatar"),
-       let uiImage = UIImage(data: data) {
-        viewModel.setImageStateSuccess(image: uiImage)
-    } else {
-        if let defaultImage = UIImage(named: "Avatar") {
-            viewModel.setImageStateSuccess(image: defaultImage)
-        }
-    }
-
-    // Сохраняем другие данные
+    // Загружаем аватар: если в UserDefaults нет данных, используем стандартную аватарку
+    let data = UserDefaults.standard.data(forKey: "Avatar") ?? UIImage(named: "Avatar")!.jpegData(compressionQuality: 1)!
+    let image = UIImage(data: data)!
+    viewModel.setImageStateSuccess(image: Image(uiImage: image))
+    
     for key in viewModel.keyValues {
         switch key {
         case "FirstName":
@@ -125,7 +106,14 @@ func restore(viewModel: UserProfileM) {
         case "Nickname":
             viewModel.nickname = UserDefaults.standard.string(forKey: key) ?? ""
         default:
-            print("Unknown value")
+            print("Unknown key: \(key)")
         }
+    }
+}
+
+struct UserProfileS_Previews: PreviewProvider {
+    static var previews: some View {
+        UserProfileS()
+            .environmentObject(MainVM())
     }
 }

@@ -7,72 +7,109 @@ import SwiftUI
 
 struct AuthMenuS: View {
     @EnvironmentObject var vm: MainVM
-    
+    // Состояние для анимации появления содержимого
+    @State private var animateContent = false
+
     var body: some View {
         NavigationView {
             ZStack {
-                Color(.systemGray6)
-                    .ignoresSafeArea()
-                VStack(spacing: 20) {
-                    Button {
-                        vm.navigationState = .Signin
-                    } label: {
-                        Text("Sign in")
-                            .font(.system(size: 25, weight: .bold))
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.white)
-                            .foregroundColor(.green)
-                            .cornerRadius(10)
-                            .shadow(color: .gray.opacity(0.5), radius: 5, x: 0, y: 2)
-                    }
-                    .frame(width: 300)
-                    
-                    Button {
-                        vm.navigationState = .Reset
-                    } label: {
-                        Text("Reset password")
-                            .font(.system(size: 25, weight: .bold))
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
+                // Градиентный фон
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.purple.opacity(0.8)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                VStack(spacing: 30) {
+                    VStack(spacing: 10) {
+                        Image(systemName: "shield.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80, height: 80)
                             .foregroundColor(.white)
-                            .cornerRadius(10)
-                            .shadow(color: .gray.opacity(0.5), radius: 5, x: 0, y: 2)
-                    }
-                    .frame(width: 300)
-                    
-                    Button {
-                        vm.navigationState = .Signup
-                    } label: {
-                        Text("Sign up")
-                            .font(.system(size: 25, weight: .bold))
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.yellow)
+                        
+                        Text("MyRegisterApp!!")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
                             .foregroundColor(.white)
-                            .cornerRadius(10)
-                            .shadow(color: .gray.opacity(0.5), radius: 5, x: 0, y: 2)
-                    }
-                    .frame(width: 300)
-                    
-                    Button {
-                        vm.navigationState = .Drop
-                    } label: {
-                        Text("Delete account")
-                            .font(.system(size: 25, weight: .bold))
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.red)
+                        
+                        Text("Choose an option")
                             .foregroundColor(.white)
-                            .cornerRadius(10)
-                            .shadow(color: .gray.opacity(0.5), radius: 5, x: 0, y: 2)
                     }
-                    .frame(width: 300)
+                    .padding(.top, 50)
+                    
+                    Spacer()
+                    
+                    // Кнопки на выбор
+                    VStack(spacing: 20) {
+                        AuthMenuButton(
+                            title: "Sign In",
+                            backgroundColor: Color.white.opacity(0.9),
+                            foregroundColor: .blue
+                        ) {
+                            vm.navigationState = .Signin
+                        }
+                        
+                        AuthMenuButton(
+                            title: "Reset Password",
+                            backgroundColor: Color.white.opacity(0.9),
+                            foregroundColor: .blue
+                        ) {
+                            vm.navigationState = .Reset
+                        }
+                        
+                        AuthMenuButton(
+                            title: "Sign Up",
+                            backgroundColor: Color.white.opacity(0.9),
+                            foregroundColor: .blue
+                        ) {
+                            vm.navigationState = .Signup
+                        }
+                        
+                        AuthMenuButton(
+                            title: "Delete Account",
+                            backgroundColor: Color.white.opacity(0.9),
+                            foregroundColor: .red
+                        ) {
+                            vm.navigationState = .Drop
+                        }
+                    }
+                    .padding(.horizontal, 40)
+                    
+                    Spacer()
                 }
-                .padding()
+                // Применяем анимацию появления: из прозрачного (0) в полностью видимый (1)
+                .opacity(animateContent ? 1 : 0)
+                .animation(.easeOut(duration: 0.5), value: animateContent)
             }
-            .navigationTitle("Auth Menu")
+            .navigationBarHidden(true)
+        }
+        .onAppear {
+            // При появлении активируем анимацию
+            animateContent = true
+        }
+    }
+}
+
+/// Универсальная кнопка для экрана AuthMenu,
+/// которая повторяет дизайн с фоном, шрифтами и тенями.
+struct AuthMenuButton: View {
+    let title: String
+    let backgroundColor: Color
+    let foregroundColor: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(backgroundColor)
+                .foregroundColor(foregroundColor)
+                .cornerRadius(15)
+                .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
         }
     }
 }
@@ -81,5 +118,15 @@ struct AuthMenuS_Previews: PreviewProvider {
     static var previews: some View {
         AuthMenuS()
             .environmentObject(MainVM())
+    }
+}
+
+// MARK: - Пользовательский стиль для анимации нажатия кнопок
+struct PressableButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .opacity(configuration.isPressed ? 0.8 : 1.0)
+            .animation(.easeOut(duration: 0.2), value: configuration.isPressed)
     }
 }

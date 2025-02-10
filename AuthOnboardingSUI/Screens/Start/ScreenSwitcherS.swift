@@ -31,30 +31,25 @@ struct ScreenSwitcherS: View {
                     DropS()
                 case .AuthMenu:
                     AuthMenuS()
-                // default:
-                    // AuthMenuS()
                 }
             }
         }
         .padding()
-        .overlay (
-            ErrorV()
-        )
-        /*
-        .onAppear(perform: { // check token
-            vm.getRequest(endpoint: "check", body: [:], token: vm.token, requestType: "GET") { response in
+        .overlay(ErrorV())
+        .onAppear {
+            
+            vm.getRequest("check", [:], vm.token, "GET") { response in
                 DispatchQueue.main.async {
                     if response.id == -1 {
                         if vm.navigationState != .Onboarding {
                             vm.errorState = .Error(message: response.token)
+                            vm.navigationState = .AuthMenu
                         }
-                    } // else { // if response.id == 0 {
-                        // vm.errorState = .Success(message: response.token)
-                    // }
-                    // vm.errorState = response.id == 0 ? .Success(message: response.token) : .Error(message: response.token)
+                    } else {
+                        vm.navigationState = .Main
+                    }
                 }
             }
-        })
-        */
+        }
     }
 }
